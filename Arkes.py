@@ -1,7 +1,7 @@
 import os
 import datetime
-import configparser
 import json
+
 from exchangelib import DELEGATE, Account, Credentials, Configuration
 
 def LoggingFile(LogType, LogMessage):
