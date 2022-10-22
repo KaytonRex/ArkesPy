@@ -134,7 +134,10 @@ try:
         ExchangeParentFolder = account.inbox
     else:
         ExchangeParentFolder = account.inbox / ArkesConfig.get("ExchangeParentFolder")
-    ExchangeAwaitingFolder = ExchangeParentFolder / ArkesConfig.get("ExchangeAwaitingFolder")
+    if ArkesConfig.get("ExchangeAwaitingFolder") == ArkesConfig.get("ExchangeParentFolder"):
+        ExchangeAwaitingFolder = ExchangeParentFolder
+    else:
+        ExchangeAwaitingFolder = ExchangeParentFolder / ArkesConfig.get("ExchangeAwaitingFolder")
     ExchangeSuccessfulFolder = ExchangeParentFolder / ArkesConfig.get("ExchangeSuccessfulFolder")
     ExchangeFailedFolder = ExchangeParentFolder / ArkesConfig.get("ExchangeFailedFolder")
 except Exception as e:
@@ -144,4 +147,12 @@ except Exception as e:
 # Print first 100 inbox messages in reverse order
 FiveRecords = ExchangeAwaitingFolder.all()[:100]
 for item in FiveRecords:
-    print(item.sender.email_address, item.subject)
+    if item.has_attachments:
+        print(item.sender.email_address, item.subject)
+        for attachment in item.attachments:
+            local_path = f"C:\\Users\\Kayto\\Documents\\GitHub\\ArkesPy\\Temp\\{item.sender.email_address} {item.subject} {attachment.name}"
+            with open(local_path, 'wb') as f:
+                f.write(attachment.content)
+    else:
+        print("No Attachments")
+        item.move(ExchangeFailedFolder)
