@@ -2,6 +2,7 @@
 Logging/
 Config.json
 Temp/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -144,15 +144,22 @@ except Exception as e:
         LoggingFile("ERROR",f"Exchange Folder Selections Failed. Following error message reported: {e}")
         exit()
 
-# Print first 100 inbox messages in reverse order
-FiveRecords = ExchangeAwaitingFolder.all()[:100]
-for item in FiveRecords:
-    if item.has_attachments:
-        print(item.sender.email_address, item.subject)
-        for attachment in item.attachments:
-            local_path = f"C:\\Users\\Kayto\\Documents\\GitHub\\ArkesPy\\Temp\\{item.sender.email_address} {item.subject} {attachment.name}"
-            with open(local_path, 'wb') as f:
-                f.write(attachment.content)
+AwaitingEmails = ExchangeAwaitingFolder.all()[:100]
+for email in AwaitingEmails:
+    if email.has_attachments:
+        # Download Email Attachments
+        try:
+            print(email.sender.email_address, email.subject)
+            for attachment in email.attachments:
+                local_path = f"C:\\Users\\Kayto\\Documents\\GitHub\\ArkesPy\\Temp\\{email.sender.email_address} {email.subject} {attachment.name}"
+                with open(local_path, 'wb') as f:
+                    f.write(attachment.content)
+        except Exception as e:
+            LoggingFile("ERROR",f"Exchange Folder Selections Failed. Following error message reported: {e}")
     else:
-        print("No Attachments")
-        item.move(ExchangeFailedFolder)
+        # No Email, move email to failed folder
+        try:
+            email.move(ExchangeFailedFolder)
+            LoggingFile("TRACE",f"The following email, has no attachments: {email.sender.email_address} {email.subject}")
+        except Exception as e:
+            LoggingFile("ERROR",f"Exchange Folder Selections Failed. Following error message reported: {e}")
